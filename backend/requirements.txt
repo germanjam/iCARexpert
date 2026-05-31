@@ -9,7 +9,7 @@ sqlalchemy==2.0.23
 alembic==1.12.1
 
 # LLM Integration
-ollama==0.1.1
+ollama==0.6.2
 
 # Scraping
 beautifulsoup4==4.12.2
