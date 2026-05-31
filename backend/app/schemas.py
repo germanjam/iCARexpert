@@ -40,15 +40,52 @@ class UserProfileCreateSchema(BaseModel):
     priority_metrics: List[str] = ["efficiency", "reliability", "comfort"]
 
 
-class UserProfileSchema(UserProfileCreateSchema):
-    """Full user profile"""
+class UserProfileSchema(BaseModel):
+    """Full user profile - handles both nested and flat formats"""
     id: int
     user_id: str
+    name: str
+    driving_pattern: DrivingPatternSchema
+    vehicle_requirements: VehicleRequirementsSchema
+    budget: BudgetSchema
+    priority_metrics: List[str]
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+
+    @classmethod
+    def from_orm(cls, obj):
+        """Convert ORM object to schema, reconstructing nested objects"""
+        return cls(
+            id=obj.id,
+            user_id=obj.user_id,
+            name=obj.name,
+            driving_pattern=DrivingPatternSchema(
+                primary_route=obj.primary_route,
+                highway_percentage=obj.highway_percentage,
+                yearly_km_estimate=obj.yearly_km_estimate,
+                driving_style=obj.driving_style,
+            ),
+            vehicle_requirements=VehicleRequirementsSchema(
+                condition=obj.condition,
+                transmission=obj.transmission,
+                eco_label_required=obj.eco_label_required,
+                min_length=obj.min_length,
+                target_length=obj.target_length,
+                max_length=obj.max_length,
+                preferred_fuel_types=obj.preferred_fuel_types or ["hybrid", "electric"],
+            ),
+            budget=BudgetSchema(
+                budget_min=obj.budget_min,
+                budget_max=obj.budget_max,
+                currency=obj.currency,
+            ),
+            priority_metrics=obj.priority_metrics or ["efficiency", "reliability", "comfort"],
+            created_at=obj.created_at,
+            updated_at=obj.updated_at,
+        )
 
 
 class VehicleSchema(BaseModel):
