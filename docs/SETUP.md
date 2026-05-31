@@ -1,129 +1,94 @@
-"""
-iCARexpert Setup Guide
-======================
+# iCARexpert Setup Guide
 
-Complete installation and setup instructions for iCARexpert
-"""
+## Installation Steps
 
-# Installation Steps
-
-## 1. Prerequisites
+### 1. Prerequisites
 
 Ensure you have:
 - Python 3.10 or higher
 - Git
 - Ollama (for local LLM)
-- Docker & Docker Compose (optional, for database)
+- 5GB disk space for Llama model
 
-## 2. Clone Repository
+### 2. Clone Repository
 
 ```bash
 git clone https://github.com/germanjam/iCARexpert.git
 cd iCARexpert
 ```
 
-## 3. Create Virtual Environment
+### 3. Create Virtual Environment
 
-### Linux/Mac
 ```bash
+# Linux/Mac
 python3 -m venv venv
 source venv/bin/activate
-```
 
-### Windows
-```bash
+# Windows
 python -m venv venv
 venv\Scripts\activate
 ```
 
-## 4. Install Dependencies
+### 4. Install Dependencies
 
 ```bash
 pip install --upgrade pip
 pip install -r backend/requirements.txt
 ```
 
-## 5. Setup Ollama (LLM)
+### 5. Setup Ollama (LLM)
 
-### Install Ollama
-Visit: https://ollama.ai
-
-Or on Linux:
+#### Install Ollama
+Visit: https://ollama.ai or on Linux:
 ```bash
 curl https://ollama.ai/install.sh | sh
 ```
 
-### Download Llama 2 Model
+#### Download Llama 2 Model
 ```bash
 ollama pull llama2:7b-chat-q4_K_M
 ```
 
 This downloads a quantized version (~5GB) suitable for local development.
 
-### Start Ollama Service
+#### Start Ollama Service
 ```bash
 ollama serve
 ```
 
 Ollama will start on: `http://localhost:11434`
 
-## 6. Setup Database
+### 6. Setup Database
 
-### Option A: Using SQLite (Recommended for Development)
-No setup needed! SQLite will create automatically on first run.
+For development, SQLite is automatic. No additional setup needed.
 
-### Option B: Using PostgreSQL with Docker
-```bash
-docker-compose up -d postgres
-```
-
-Then update `.env`:
-```
-DATABASE_URL=postgresql://icarexpert_user:secure_password@localhost:5432/icarexpert_db
-```
-
-## 7. Configure Environment
+### 7. Configure Environment
 
 ```bash
 cp .env.example .env
+# Edit .env with your settings if needed
 ```
 
-Edit `.env` with your settings:
-- Ollama configuration
-- Email credentials (for Phase 3)
-- Database URL
+### 8. Run the Application
 
-## 8. Run the Application
-
-### Start Backend Server
 ```bash
 cd backend
 uvicorn app.main:app --reload
 ```
 
-The API will be available at: `http://localhost:8000`
+**API Access:**
+- API: http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-### Access API Documentation
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+### 9. Test the Setup
 
-## 9. Test the Setup
-
-### Health Check
+#### Health Check
 ```bash
 curl http://localhost:8000/health
 ```
 
-Expected response:
-```json
-{
-  "status": "healthy",
-  "app": "iCARexpert",
-  "version": "0.1.0"
-}
-```
-
-### Create User Profile
+#### Create User Profile
 ```bash
 curl -X POST http://localhost:8000/api/profile \
   -H "Content-Type: application/json" \
@@ -139,7 +104,6 @@ curl -X POST http://localhost:8000/api/profile \
       "condition": "new",
       "transmission": "automatic",
       "eco_label_required": true,
-      "min_length": 4.0,
       "target_length": 4.10,
       "max_length": 4.20,
       "preferred_fuel_types": ["hybrid", "electric"]
@@ -164,16 +128,6 @@ Error: Failed to connect to Ollama at http://localhost:11434
 2. Check Ollama is accessible: `curl http://localhost:11434/api/tags`
 3. Verify OLLAMA_BASE_URL in .env
 
-### Database Connection Error
-```
-Error: could not connect to server
-```
-
-**Solution:**
-1. If using PostgreSQL, ensure Docker is running
-2. Check DATABASE_URL in .env
-3. For SQLite, ensure write permissions in project directory
-
 ### Port Already in Use
 ```
 Address already in use (:8000)
@@ -181,70 +135,26 @@ Address already in use (:8000)
 
 **Solution:**
 ```bash
-# Use different port
 uvicorn app.main:app --port 8001
 ```
 
-## Docker Compose Setup (Full Stack)
-
-### All Services Together
-```bash
-docker-compose up -d
+### Model Not Found
+```
+Error: model not found
 ```
 
-Services:
-- FastAPI Backend: `http://localhost:8000`
-- PostgreSQL: `localhost:5432`
-- Ollama: `http://localhost:11434`
-
-### Stop Services
+**Solution:**
 ```bash
-docker-compose down
-```
-
-## Development Commands
-
-### Run Tests
-```bash
-pytest tests/
-```
-
-### Format Code
-```bash
-black backend/
-```
-
-### Check Linting
-```bash
-flake8 backend/
-```
-
-### Create Database Backup
-```bash
-# SQLite
-cp icarexpert.db icarexpert.db.backup
-
-# PostgreSQL
-pg_dump -U icarexpert_user icarexpert_db > backup.sql
+ollama pull llama2:7b-chat-q4_K_M
 ```
 
 ## Next Steps
 
-1. **Phase 1 Complete:** Backend API ready
-2. **Phase 2:** Implement vehicle search and scraping
-3. **Phase 3:** Add email automation
-4. **Phase 4:** Build React dashboard
+1. Read [API Reference](API.md) - Understand endpoints
+2. Review [User Profile Guide](USER_PROFILE.md) - Configure your needs
+3. Check Phase 2 roadmap - Coming features
 
 ## Support
 
-If you encounter issues:
-
-1. Check logs: `tail -f logs/icarexpert.log`
-2. Open an issue: https://github.com/germanjam/iCARexpert/issues
-3. Check documentation: `/docs/` directory
-
-## Additional Resources
-
-- FastAPI Docs: https://fastapi.tiangolo.com/
-- Ollama Docs: https://ollama.ai/
-- SQLAlchemy Docs: https://docs.sqlalchemy.org/
+- GitHub Issues: https://github.com/germanjam/iCARexpert/issues
+- Discussions: https://github.com/germanjam/iCARexpert/discussions
